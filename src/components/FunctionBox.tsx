@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import SvgChainNode from "./SvgChainNode";
 
 const FunctionBox = ({
     id,
