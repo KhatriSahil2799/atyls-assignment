@@ -1,5 +1,5 @@
 import { AlertCircle } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import FunctionBox from "./FunctionBox";
 import CurvedConnector from "./CurvedConnector";
 import useFunctionFlow from "@/hooks/useFunctionFlow";
@@ -7,6 +7,8 @@ import LeafNode from "./LeafNode";
 
 const FunctionFlow = () => {
   const {
+    inputNodeSVGRef,
+    outputNodeSVGRef,
     error,
 
     initialValue,
@@ -19,14 +21,10 @@ const FunctionFlow = () => {
     getFunctionBoxConnections,
   } = useFunctionFlow();
 
-  const inputNodeSVGRef = useRef<SVGSVGElement>(null);
-
-  const outputNodeSVGRef = useRef<SVGSVGElement>(null);
-
   return (
     <div className="p-8">
       {error && (
-        <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md flex items-center">
+        <div className=" absolute top-10 right-10 p-4 bg-red-50 border border-red-200 rounded-md flex items-center">
           <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
           <span className="text-red-700">{error}</span>
         </div>
@@ -50,8 +48,7 @@ const FunctionFlow = () => {
               equation={func.equation}
               nextFunction={func.nextFunction}
               onEquationChange={handleEquationChange}
-              onNextFunctionChange={ 
-                handleNextFunctionChange }
+              onNextFunctionChange={handleNextFunctionChange}
               functionOptions={functions
                 .filter((f) => f.id !== func.id)
                 .map((f) => f.id.toString())}
@@ -66,18 +63,20 @@ const FunctionFlow = () => {
           value={finalOutput}
           nodeRef={outputNodeSVGRef}
         />
-      </div>
+                <svg className='absolute top-0 left-0 w-full h-full pointer-events-none'>
 
-      {getFunctionBoxConnections().map((connection, index) => {
-        return (
-          <CurvedConnector
-            key={index}
-            startPoint={connection.start}
-            endPoint={connection.end}
-            // curvature={0.3}
-          />
-        );
-      })}
+        {getFunctionBoxConnections().map((connection, index) => {
+          return (
+            <CurvedConnector
+              key={index}
+              startPoint={connection.start}
+              endPoint={connection.end}
+              // curvature={0.3}
+            />
+          );
+        })}
+        </svg>
+      </div>
     </div>
   );
 };
