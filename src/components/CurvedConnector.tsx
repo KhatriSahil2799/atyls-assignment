@@ -1,4 +1,13 @@
-import { CURVE_TRESHOLD } from "@/utils/constants";
+import { Coordinate } from "@/types";
+import { generateSVGPath } from "@/utils/helper";
+
+type Props = {
+  startPoint: Coordinate;
+  endPoint: Coordinate;
+  curvature?: number;
+  strokeWidth?: number;
+  color?: string;
+};
 
 const CurvedConnector = ({
   startPoint,
@@ -6,62 +15,7 @@ const CurvedConnector = ({
   curvature = 0.3,
   strokeWidth = 7,
   color = "#0066FF4D",
-}) => {
-  // Calculate control points for the curved path
-  const generatePath = () => {
-    if (!startPoint || !endPoint) return "";
-
-    // Calculate the midpoint
-    const midX = (startPoint.x + endPoint.x) / 2;
-    const midY = (startPoint.y + endPoint.y) / 2;
-
-    // Calculate the distance between points
-    // const dx = endPoint.x - startPoint.x;
-    // const dy = endPoint.y - startPoint.y;
-
-    // const offsetX = curvature * Math.abs(dy)
-    // const offsetY = curvature * Math.abs(dx)
-
-    // const  controlX = midX + offsetX
-    // const controlY = midY + offsetY
-
-    const distance = Math.sqrt(
-      Math.pow(endPoint.x - startPoint.x, 2) +
-        Math.pow(endPoint.y - startPoint.y, 2)
-    );
-
-    // Calculate the control points
-    if (distance > CURVE_TRESHOLD) {
-      // Split the path into two curves
-      const firstMidX = (startPoint.x + midX) / 2;
-      const firstMidY = (startPoint.y + midY) / 2;
-
-      //  Calculate the distance between points
-      const dx = midX - startPoint.x;
-      const dy = midY - startPoint.y;
-
-      const offsetX = curvature * Math.abs(dy);
-      const offsetY = curvature * Math.abs(dx);
-
-      const controlX = firstMidX + offsetX;
-      const controlY = firstMidY + offsetY;
-
-      return `M ${startPoint.x} ${startPoint.y} Q ${controlX} ${controlY} ${midX} ${midY} T ${endPoint.x} ${endPoint.y}`;
-    }
-
-    // Calculate the distance between points
-    const dx = endPoint.x - startPoint.x;
-    const dy = endPoint.y - startPoint.y;
-
-    const offsetX = curvature * Math.abs(dy);
-    const offsetY = curvature * Math.abs(dx);
-
-    const controlX = midX + offsetX;
-    const controlY = midY + offsetY;
-
-    // Generate the SVG path
-    return `M ${startPoint.x} ${startPoint.y} Q ${controlX} ${controlY} ${endPoint.x} ${endPoint.y}`;
-  };
+}: Props) => {
 
   return (
     <svg
@@ -69,7 +23,7 @@ const CurvedConnector = ({
       style={{ minWidth: "100%", minHeight: "100%" }}
     >
       <path
-        d={generatePath()}
+        d={generateSVGPath(startPoint, endPoint, curvature)}
         fill="none"
         stroke={color}
         strokeWidth={strokeWidth}
