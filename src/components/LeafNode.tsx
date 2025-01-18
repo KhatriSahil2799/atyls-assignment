@@ -1,6 +1,5 @@
 import React, { ChangeEventHandler, RefObject } from "react";
 import SvgChainNode from "./SvgChainNode"; // assuming this is imported from a separate file
-import { ConnectionNodePositions } from "@/types";
 
 type Props = {
   label: string;
@@ -8,7 +7,6 @@ type Props = {
   type: "input" | "output";
   onChange?: ChangeEventHandler<HTMLInputElement>;
   nodeRef: RefObject<SVGSVGElement | null>;
-  onPositionChange: (id: number, positions: ConnectionNodePositions) => void;
 };
 
 const LeafNode = ({ label, value, onChange, type, nodeRef }: Props) => {

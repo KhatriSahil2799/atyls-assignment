@@ -1,4 +1,4 @@
-export type FunctionBox = {
+export type FunctionCard = {
   id: number;
   equation: string;
   nextFunction: string;

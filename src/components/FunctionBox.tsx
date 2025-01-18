@@ -1,6 +1,5 @@
 import { RefObject } from "react";
 import SvgChainNode from "./SvgChainNode";
-import { ConnectionNodePositions } from "@/types";
 
 type Props = {
   id: number;
@@ -9,7 +8,6 @@ type Props = {
   nextFunction: string;
   onNextFunctionChange: (id: number, nextFunction: string) => void;
   functionOptions: Array<string>;
-  onPositionChange: (id: number, positions: ConnectionNodePositions) => void;
   functionCardRefs: RefObject<Map<string, SVGSVGElement | null>>;
 };
 

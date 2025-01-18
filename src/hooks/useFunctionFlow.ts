@@ -1,142 +1,54 @@
-import { ConnectionNodePositions, Coordinate, NodeConnection } from "@/types";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { NodeConnection, FunctionCard } from "../types";
 import {
-  calculateElementCoordinates,
   calculateFunctionFlowResult,
+  createConnectionMap,
+  getFunctionConnections,
 } from "@/utils/helper";
-import {
-  RefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
+import { INITIAL_FUNCTION_FLOW } from "@/utils/constants";
 
-const INITIAL_FUNCTION_FLOW = [
-  { id: 1, equation: "x^2", nextFunction: "2" },
-  { id: 2, equation: "2x+4", nextFunction: "4" },
-  { id: 3, equation: "x^2+20", nextFunction: "" },
-  { id: 4, equation: "x-2", nextFunction: "5" },
-  { id: 5, equation: "x/2", nextFunction: "3" },
-];
+export const useFunctionFlow = () => {
+  const [functions, setFunctions] = useState<FunctionCard[]>(
+    INITIAL_FUNCTION_FLOW
+  );
+  const [connections, setConnections] = useState<NodeConnection[]>([]);
 
-const useFunctionFlow = () => {
-  const [functions, setFunctions] = useState(() => INITIAL_FUNCTION_FLOW);
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string>("");
+  const [initialValue, setInitialValue] = useState<number>(2);
+  const [finalOutput, setFinalOutput] = useState<number>(45);
 
-  const functionCardRefs = useRef(new Map<string, SVGSVGElement>());
-
-  const [connections, setConnections] = useState([]);
-
+  const functionCardRefs = useRef<Map<string, SVGSVGElement>>(new Map());
   const inputNodeSVGRef = useRef<SVGSVGElement>(null);
   const outputNodeSVGRef = useRef<SVGSVGElement>(null);
 
-  const [isPending, startTransition] = useTransition();
-
-  const getFunctionBoxConnections = useCallback(
-    (connectionNodePositions) => {
-      let connections: Array<NodeConnection> = [];
-      let firstNodeInputCoordinate: Coordinate | null = null;
-      let lastNodeOutputCoordinate: Coordinate | null = null;
-      functions.forEach((func) => {
-        if (
-          func?.nextFunction &&
-          connectionNodePositions[func?.id] &&
-          connectionNodePositions[Number(func?.nextFunction)]
-        ) {
-          if (firstNodeInputCoordinate === null) {
-            firstNodeInputCoordinate = connectionNodePositions[func?.id].input;
-          }
-          connections.push({
-            start: connectionNodePositions[func?.id].output,
-            end: connectionNodePositions[Number(func?.nextFunction)].input,
-          });
-        }
-        // console.log("🚀 ~ func?.nextFunction:", func?.nextFunction, func,connectionNodePositions)
-        if (!func?.nextFunction) {
-          lastNodeOutputCoordinate = connectionNodePositions[func?.id]?.output;
-        }
-      });
-
-      const inputNodePosition = calculateElementCoordinates(
-        inputNodeSVGRef.current
-      );
-      const outputNodePosition = calculateElementCoordinates(
-        outputNodeSVGRef.current
-      );
-
-      // add leaf node's connections
-      connections = [
-        {
-          start: inputNodePosition,
-          end: firstNodeInputCoordinate,
-        },
-        ...connections,
-        {
-          start: lastNodeOutputCoordinate,
-          end: outputNodePosition,
-        },
-      ];
-
-      return connections;
-    },
-    [functions]
-  );
-
-  const calc = useCallback(() => {
-    const functionCardsSVGNodesPositions: Record<
-      number,
-      ConnectionNodePositions
-    > = {};
-
-    functionCardRefs.current?.keys().forEach((functionCardNodeKey) => {
-      const [_id, elementType] = functionCardNodeKey?.split(".");
-      const id = Number(_id);
-
-      if (!functionCardsSVGNodesPositions[id]) {
-        functionCardsSVGNodesPositions[id] = {};
-      }
-
-      functionCardsSVGNodesPositions[id][elementType] =
-        calculateElementCoordinates(
-          functionCardRefs.current?.get(functionCardNodeKey)
-        );
-    });
-
-    console.log(
-      "🚀 ~ calc ~ functionCardsSVGNodesPositions:",
-      functionCardsSVGNodesPositions
+  const calculateConnections = useCallback(() => {
+    const nodePositions = createConnectionMap(functionCardRefs.current);
+    const updatedConnections = getFunctionConnections(
+      functions,
+      nodePositions,
+      inputNodeSVGRef.current,
+      outputNodeSVGRef.current
     );
-
-    const connections = getFunctionBoxConnections(
-      functionCardsSVGNodesPositions
-    );
-
-    setConnections(connections);
-  }, [getFunctionBoxConnections]);
-
-  const [error, setError] = useState("");
-  const [initialValue, setInitialValue] = useState(2);
-  const [finalOutput, setFinalOutput] = useState(45);
-
-  // const [connectionNodePositions, setConnectionNodePositions] = useState<
-  //   Record<number, ConnectionNodePositions>
-  // >({});
+    setConnections(updatedConnections);
+  }, [functions]);
 
   const calculateResult = useCallback(() => {
     try {
       const result = calculateFunctionFlowResult(initialValue, functions);
-
       setFinalOutput(result);
       setError("");
     } catch (err) {
-      setError(err?.message);
+      setError(err instanceof Error ? err.message : "An error occurred");
     }
-  }, [functions, initialValue]);
+  }, [initialValue, functions]);
 
   const handleEquationChange = useCallback(
     (id: number, newEquation: string) => {
       setFunctions((prev) =>
-        prev.map((f) => (f.id === id ? { ...f, equation: newEquation } : f))
+        prev.map((func) =>
+          func.id === id ? { ...func, equation: newEquation } : func
+        )
       );
     },
     []
@@ -145,35 +57,22 @@ const useFunctionFlow = () => {
   const handleNextFunctionChange = useCallback(
     (id: number, nextFunction: string) => {
       setFunctions((prev) =>
-        prev.map((f) => (f.id === id ? { ...f, nextFunction } : f))
+        prev.map((func) => (func.id === id ? { ...func, nextFunction } : func))
       );
     },
     []
   );
 
-  // const handleFunctionBoxConnectionNodePositions = useCallback(
-  //   (id: number, positions: ConnectionNodePositions) => {
-  //     setConnectionNodePositions((prev) => ({
-  //       ...prev,
-  //       [id]: positions,
-  //     }));
-  //   },
-  //   []
-  // );
-
-  // Use useEffect to get the position of the input and output nodes
   useEffect(() => {
-    const fn = () => startTransition(calc);
-    // Add event listener to update position on window resize
-    window.addEventListener("resize", fn);
-    return () => window.removeEventListener("resize", fn);
-  }, [calc]);
+    const handleResize = () => startTransition(calculateConnections);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [calculateConnections]);
 
   useEffect(() => {
     calculateResult();
-    const fn = () => startTransition(calc);
-    fn();
-  }, [initialValue, functions, calculateResult, calc]);
+    startTransition(calculateConnections);
+  }, [functions, initialValue, calculateResult, calculateConnections]);
 
   return {
     isPending,
@@ -183,15 +82,11 @@ const useFunctionFlow = () => {
     initialValue,
     setInitialValue,
     finalOutput,
-    setFinalOutput,
     handleEquationChange,
     handleNextFunctionChange,
-    // handleFunctionBoxConnectionNodePositions,
-    getFunctionBoxConnections,
     inputNodeSVGRef,
     outputNodeSVGRef,
     connections,
-    setConnections,
   };
 };
 

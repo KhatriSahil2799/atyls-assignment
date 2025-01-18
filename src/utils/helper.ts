@@ -1,4 +1,9 @@
-import { Coordinate, FunctionBox } from "@/types";
+import {
+  ConnectionNodePositions,
+  Coordinate,
+  FunctionCard,
+  NodeConnection,
+} from "@/types";
 import { CURVE_TRESHOLD } from "./constants";
 
 const parseEquation = (equation: string) => {
@@ -10,7 +15,7 @@ const parseEquation = (equation: string) => {
 
 export const calculateFunctionFlowResult = (
   initialValue: string | number = 0,
-  functionsFlow: Array<FunctionBox>
+  functionsFlow: Array<FunctionCard>
 ) => {
   let currentValue = Number(initialValue);
   let currentFunctionId = "1";
@@ -91,11 +96,74 @@ export const generateSVGPath = (
   return `M ${startPoint.x} ${startPoint.y} Q ${controlX} ${controlY} ${endPoint.x} ${endPoint.y}`;
 };
 
-export const calculateElementCoordinates = (element: HTMLElement) => {
+export const calculateElementCoordinates = (element: SVGSVGElement | null) => {
+  if (!element) return { x: 0, y: 0 };
+
   const { left, top, width, height } = element.getBoundingClientRect();
 
   return {
     x: left + width / 2,
     y: top + height / 2,
   };
+};
+
+export const createConnectionMap = (
+  functionRefs: Map<string, SVGSVGElement>
+): Record<number, ConnectionNodePositions> => {
+  const nodePositions: Record<number, ConnectionNodePositions> = {};
+
+  functionRefs.forEach((node, key) => {
+    const [idStr, type] = key.split(".");
+    const id = Number(idStr);
+
+    if (!nodePositions[id]) {
+      nodePositions[id] = { input: { x: 0, y: 0 }, output: { x: 0, y: 0 } };
+    }
+    nodePositions[id][type as keyof ConnectionNodePositions] =
+      calculateElementCoordinates(node);
+  });
+
+  return nodePositions;
+};
+
+export const getFunctionConnections = (
+  functions: FunctionCard[],
+  connectionNodePositions: Record<number, ConnectionNodePositions>,
+  inputNodeRef: SVGSVGElement | null,
+  outputNodeRef: SVGSVGElement | null
+): NodeConnection[] => {
+  const connections: NodeConnection[] = [];
+  let firstNodeInput: Coordinate | null = null;
+  let lastNodeOutput: Coordinate | null = null;
+
+  functions.forEach((func) => {
+    const currentNodePos = connectionNodePositions[func.id];
+    const nextNodePos = connectionNodePositions[Number(func.nextFunction)];
+
+    if (func.nextFunction && currentNodePos?.output && nextNodePos?.input) {
+      if (!firstNodeInput) firstNodeInput = currentNodePos.input;
+
+      connections.push({
+        start: currentNodePos.output,
+        end: nextNodePos.input,
+      });
+    }
+
+    if (!func.nextFunction && currentNodePos?.output) {
+      lastNodeOutput = currentNodePos.output;
+    }
+  });
+
+  const inputNodePosition = calculateElementCoordinates(inputNodeRef);
+  const outputNodePosition = calculateElementCoordinates(outputNodeRef);
+
+  if (firstNodeInput && lastNodeOutput) {
+    return [
+      { start: inputNodePosition, end: firstNodeInput },
+      ...connections,
+      { start: lastNodeOutput, end: outputNodePosition },
+    ];
+  }
+
+  return connections;
 };

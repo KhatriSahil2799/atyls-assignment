@@ -3,11 +3,10 @@ import FunctionBox from "./FunctionBox";
 import CurvedConnector from "./CurvedConnector";
 import useFunctionFlow from "@/hooks/useFunctionFlow";
 import LeafNode from "./LeafNode";
-import { useEffect, useRef } from "react";
 
 const FunctionFlow = () => {
   const {
-    functionCardRefs, 
+    functionCardRefs,
     inputNodeSVGRef,
     outputNodeSVGRef,
     error,
@@ -19,43 +18,8 @@ const FunctionFlow = () => {
     functions,
     handleEquationChange,
     handleNextFunctionChange,
-    // handleFunctionBoxConnectionNodePositions, 
-     connections
+    connections,
   } = useFunctionFlow();
-    console.log("🚀 ~ FunctionFlow ~ functionCardRefs:", functionCardRefs)
-
-  const ref = useRef(null);
-
-  // useEffect(() => {
-  //   const updatePositions = () => {
-  //     const boxes = containerRef.current.querySelectorAll('[ref="boxRef"]');
-  //     boxes.forEach((box) => {
-  //       const id = box.dataset.id;
-  //       const rect = box.getBoundingClientRect();
-  //       handlePositionChange(parseInt(id), {
-  //         input: {
-  //           x: rect.left,
-  //           y: rect.top + rect.height / 2,
-  //         },
-  //         output: {
-  //           x: rect.right,
-  //           y: rect.top + rect.height / 2,
-  //         },
-  //       });
-  //     });
-  //   };
-
-  //   const observer = new ResizeObserver(updatePositions);
-  //   if (containerRef.current) {
-  //     observer.observe(containerRef.current);
-  //   }
-
-  //   window.addEventListener("resize", updatePositions);
-  //   return () => {
-  //     observer.disconnect();
-  //     window.removeEventListener("resize", updatePositions);
-  //   };
-  // }, []);
 
   return (
     <div className="py-24 px-16 justify-center">
@@ -73,12 +37,12 @@ const FunctionFlow = () => {
           nodeRef={inputNodeSVGRef}
           label="Initial value of x"
           onChange={(e) => setInitialValue(Number(e.target.value))}
-         />
+        />
 
         <div className="flex flex-wrap justify-center gap-20">
           {functions.map((func) => (
             <FunctionBox
-            functionCardRefs={functionCardRefs}
+              functionCardRefs={functionCardRefs}
               key={func.id}
               id={func.id}
               equation={func.equation}
@@ -88,7 +52,6 @@ const FunctionFlow = () => {
               functionOptions={functions
                 .filter((f) => f.id !== func.id)
                 .map((f) => f.id.toString())}
-              // onPositionChange={handleFunctionBoxConnectionNodePositions}
             />
           ))}
         </div>
@@ -100,16 +63,16 @@ const FunctionFlow = () => {
           nodeRef={outputNodeSVGRef}
         />
         <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          {!isPending && connections.map((connection, index) => {
-            return (
-              <CurvedConnector
-                key={index}
-                startPoint={connection.start}
-                endPoint={connection.end}
-                // curvature={0.3}
-              />
-            );
-          })}
+          {!isPending &&
+            connections.map((connection, index) => {
+              return (
+                <CurvedConnector
+                  key={index}
+                  startPoint={connection.start}
+                  endPoint={connection.end}
+                />
+              );
+            })}
         </svg>
       </div>
     </div>
