@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { RefObject } from "react";
 import SvgChainNode from "./SvgChainNode";
 import { ConnectionNodePositions } from "@/types";
 
@@ -10,6 +10,7 @@ type Props = {
   onNextFunctionChange: (id: number, nextFunction: string) => void;
   functionOptions: Array<string>;
   onPositionChange: (id: number, positions: ConnectionNodePositions) => void;
+  functionCardRefs: RefObject<Map<string, SVGSVGElement | null>>;
 };
 
 const FunctionBox = ({
@@ -19,29 +20,8 @@ const FunctionBox = ({
   nextFunction,
   onNextFunctionChange,
   functionOptions,
-  onPositionChange,
+  functionCardRefs,
 }: Props) => {
-  const inputNodeRef = useRef<SVGSVGElement>(null);
-  const outputNodeRef = useRef<SVGSVGElement>(null);
-
-  useEffect(() => {
-    if (Boolean(inputNodeRef.current) && Boolean(outputNodeRef.current)) {
-      const inputDot = inputNodeRef.current!.getBoundingClientRect();
-      const outputDot = outputNodeRef.current!.getBoundingClientRect();
-
-      onPositionChange(id, {
-        input: {
-          x: inputDot?.left + inputDot.width / 2,
-          y: inputDot?.top + inputDot.height / 2,
-        },
-        output: {
-          x: outputDot.left + outputDot.width / 2,
-          y: outputDot.top + outputDot.height / 2,
-        },
-      });
-    }
-  }, [id, onPositionChange]);
-
   return (
     <div className="bg-white rounded-lg shadow-lg p-4 w-64 border-2 border-[#DFDFDF]">
       <div className="text-sm text-gray-500 font-semibold mb-4">
@@ -80,12 +60,20 @@ const FunctionBox = ({
 
       <div className="flex justify-between items-center">
         <div className="flex items-center">
-          <SvgChainNode nodeRef={inputNodeRef} />
+          <SvgChainNode
+            nodeRef={(ref) => {
+              functionCardRefs.current.set(`${id}.input`, ref);
+            }}
+          />
           <span className="text-sm text-gray-600 ml-1 text-[10px]">input</span>
         </div>
         <div className="flex items-center">
           <span className="text-sm text-gray-600 mr-1 text-[10px]">output</span>
-          <SvgChainNode nodeRef={outputNodeRef} />
+          <SvgChainNode
+            nodeRef={(ref) => {
+              functionCardRefs.current.set(`${id}.output`, ref);
+            }}
+          />
         </div>
       </div>
     </div>

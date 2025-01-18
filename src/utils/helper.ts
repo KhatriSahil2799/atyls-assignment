@@ -38,7 +38,7 @@ export const calculateFunctionFlowResult = (
     currentFunctionId = currentFunction.nextFunction;
   }
 
-  return currentValue 
+  return currentValue;
 };
 
 // Calculate control points for the curved path
@@ -89,4 +89,13 @@ export const generateSVGPath = (
 
   // Generate the SVG path
   return `M ${startPoint.x} ${startPoint.y} Q ${controlX} ${controlY} ${endPoint.x} ${endPoint.y}`;
+};
+
+export const calculateElementCoordinates = (element: HTMLElement) => {
+  const { left, top, width, height } = element.getBoundingClientRect();
+
+  return {
+    x: left + width / 2,
+    y: top + height / 2,
+  };
 };
