@@ -29,21 +29,7 @@ const CurvedConnector = ({
         strokeWidth={strokeWidth}
         className="transition-all duration-300 ease-in-out"
       />
-      {/* Optional: Add dots at start and end points */}
-      <circle
-        cx={startPoint?.x}
-        cy={startPoint?.y}
-        r={4}
-        fill={color}
-        className="transition-all duration-300 ease-in-out"
-      />
-      <circle
-        cx={endPoint?.x}
-        cy={endPoint?.y}
-        r={4}
-        fill={color}
-        className="transition-all duration-300 ease-in-out"
-      />
+      
     </svg>
   );
 };

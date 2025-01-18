@@ -7,15 +7,15 @@ type Props = {
   value: number;
   type: "input" | "output";
   onChange?: ChangeEventHandler<HTMLInputElement>;
-  nodeRef: RefObject<SVGSVGElement | null>
-  onPositionChange:(id: number, positions: ConnectionNodePositions) => void
+  nodeRef: RefObject<SVGSVGElement | null>;
+  onPositionChange: (id: number, positions: ConnectionNodePositions) => void;
 };
 
 const LeafNode = ({ label, value, onChange, type, nodeRef }: Props) => {
   const isInputType = type === "input";
 
   return (
-    <div className="place-items-center p-4 mr-4">
+    <div className="p-4 mr-4 min-w-28">
       <div
         className={`text-white rounded-xl ${
           isInputType ? "bg-[#E29A2D]" : "bg-[#4CAF79]"
@@ -24,21 +24,23 @@ const LeafNode = ({ label, value, onChange, type, nodeRef }: Props) => {
         {label}
       </div>
       {isInputType ? (
-        <div className="flex flex-row border-2 border-[#FFC267] bg-white rounded-2xl w-24 px-3 py-2 place-items-center ">
+        <div className="pl-2 flex flex-row border-2 border-[#FFC267] bg-white  rounded-2xl px-3 justify-center items-center overflow-hidden">
           <input
             type="number"
             value={value}
             onChange={onChange}
-            className="focus:outline-none text-lg text-black inline w-10 mr-2"
+            className="text-lg text-black w-7 mr-2  focus:outline-none "
           />
-          <SvgChainNode nodeRef={nodeRef} />
+          <div className="px-2.5 justify-center items-center py-2 border-l border-[#FFEED5] ">
+            <SvgChainNode nodeRef={nodeRef} />
+          </div>
         </div>
       ) : (
-        <div className="flex flex-row border-2 border-[#2DD179] bg-white rounded-2xl px-3 place-items-center ">
-          <SvgChainNode nodeRef={nodeRef} />
-          <div className="text-lg text-black font-semibold ml-2 text-right border-l border-[#2DD179] pl-2 py-2">
-            {value}
+        <div className="flex border-2 border-[#2DD179] bg-white rounded-2xl pr-3 items-center justify-between">
+          <div className="px-2.5 justify-center items-center  py-2 mr-3 border-r border-[#2DD179]">
+            <SvgChainNode nodeRef={nodeRef} />
           </div>
+          <div className="text-lg text-black font-semibold ">{value}</div>
         </div>
       )}
     </div>

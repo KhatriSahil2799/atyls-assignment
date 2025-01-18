@@ -15,7 +15,7 @@ const useFunctionFlow = () => {
 
   const [error, setError] = useState("");
   const [initialValue, setInitialValue] = useState(2);
-  const [finalOutput, setFinalOutput] = useState(120);
+  const [finalOutput, setFinalOutput] = useState(45);
 
   const [connectionNodePositions, setConnectionNodePositions] = useState<
     Record<number, ConnectionNodePositions>

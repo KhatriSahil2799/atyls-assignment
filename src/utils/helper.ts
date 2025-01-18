@@ -38,7 +38,7 @@ export const calculateFunctionFlowResult = (
     currentFunctionId = currentFunction.nextFunction;
   }
 
-  return currentValue.toFixed(2);
+  return currentValue 
 };
 
 // Calculate control points for the curved path

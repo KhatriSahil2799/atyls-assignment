@@ -1,5 +1,4 @@
 import { AlertCircle } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import FunctionBox from "./FunctionBox";
 import CurvedConnector from "./CurvedConnector";
 import useFunctionFlow from "@/hooks/useFunctionFlow";
@@ -22,7 +21,7 @@ const FunctionFlow = () => {
   } = useFunctionFlow();
 
   return (
-    <div className="p-8">
+    <div className="py-24 px-16 justify-center">
       {error && (
         <div className=" absolute top-10 right-10 p-4 bg-red-50 border border-red-200 rounded-md flex items-center">
           <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
@@ -30,7 +29,7 @@ const FunctionFlow = () => {
         </div>
       )}
 
-      <div className="flex items-center mb-8">
+      <div className="flex justify-center items-center">
         <LeafNode
           type="input"
           value={initialValue}
@@ -40,7 +39,7 @@ const FunctionFlow = () => {
           onPositionChange={handleFunctionBoxConnectionNodePositions}
         />
 
-        <div className="flex flex-wrap gap-10">
+        <div className="flex flex-wrap justify-center gap-20 bg-red-900  ">
           {functions.map((func) => (
             <FunctionBox
               key={func.id}
@@ -63,18 +62,17 @@ const FunctionFlow = () => {
           value={finalOutput}
           nodeRef={outputNodeSVGRef}
         />
-                <svg className='absolute top-0 left-0 w-full h-full pointer-events-none'>
-
-        {getFunctionBoxConnections().map((connection, index) => {
-          return (
-            <CurvedConnector
-              key={index}
-              startPoint={connection.start}
-              endPoint={connection.end}
-              // curvature={0.3}
-            />
-          );
-        })}
+        <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          {getFunctionBoxConnections().map((connection, index) => {
+            return (
+              <CurvedConnector
+                key={index}
+                startPoint={connection.start}
+                endPoint={connection.end}
+                // curvature={0.3}
+              />
+            );
+          })}
         </svg>
       </div>
     </div>
