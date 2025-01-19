@@ -13,32 +13,39 @@ const LeafNode = ({ label, value, onChange, type, nodeRef }: Props) => {
   const isInputType = type === "input";
 
   return (
-    <div className="p-4 mr-4 min-w-28">
+    <div className="min-w-28 max-w-32 p-2">
       <div
         className={`text-white rounded-xl ${
           isInputType ? "bg-[#E29A2D]" : "bg-[#4CAF79]"
-        } text-xs font-semibold mb-2 px-2 py-1`}
+        } text-xs font-medium px-2 py-0.5 mb-1.5 w-fit`}
       >
         {label}
       </div>
       {isInputType ? (
-        <div className="pl-2 flex flex-row border-2 border-[#FFC267] bg-white  rounded-2xl px-3 justify-center items-center overflow-hidden">
-          <input
-            type="number"
-            value={value}
-            onChange={onChange}
-            className="text-lg text-black w-7 mr-2  focus:outline-none "
-          />
-          <div className="px-2.5 justify-center items-center py-2 border-l border-[#FFEED5] ">
+        <div className="flex items-center h-12 border-2 border-[#FFC267] bg-white rounded-2xl overflow-hidden">
+          <div className="flex-grow pl-2">
+            <input
+              type="number"
+              value={value}
+              onChange={onChange}
+              className="flex w-full text-xl font-medium text-black focus:outline-none"
+            />
+          </div>
+          <div className="flex items-center justify-center h-full px-2 border-l border-[#FFEED5]">
             <SvgChainNode nodeRef={nodeRef} />
           </div>
         </div>
       ) : (
-        <div className="flex border-2 border-[#2DD179] bg-white rounded-2xl pr-3 items-center justify-between">
-          <div className="px-2.5 justify-center items-center  py-2 mr-3 border-r border-[#2DD179]">
+        <div className="flex items-center h-12 border-2 border-[#2DD179] bg-white rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-center h-full px-2 border-r border-[#2DD179]">
             <SvgChainNode nodeRef={nodeRef} />
           </div>
-          <div className="text-lg text-black font-semibold ">{value}</div>
+
+          <div className="flex-grow px-2">
+            <div className="flex w-full justify-end">
+              <span className="text-xl font-medium text-black">{value}</span>
+            </div>
+          </div>
         </div>
       )}
     </div>
